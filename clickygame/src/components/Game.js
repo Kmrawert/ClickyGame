@@ -8,22 +8,32 @@ let newCharacters = DBZ;
 class Game extends Component {
     state = {
       character: [],
-      image: "",
-      name: "",
-      funFact: "",
+      // image: "",
+      // name: "",
+      // funFact: "",
       wins: 0, 
       losses: 0,
-      message: ""
+      message: "",
+      clicked: []
     }
 
     score = (prob) => {
       if (prob === "win") {
-        this.setState({message: "correct"})
-        return this.setState(prevState => ({wins: prevState.wins +1}))
-        }else if(prob === "lose") {
-        this.setState({message: "incorrect"})
-        return this.setState(prevState => ({losses: prevState.losses +1}))}
-      }
+        var newWScore = this.state.wins +1
+        this.setState({wins: newWScore, message: "correct", character: this.shuffle(newCharacters)})
+
+        } else if(prob === "lose") {
+          var newLScore = this.state.losses +1
+        this.setState({losses: newLScore, message: "incorrect", character: this.shuffle(newCharacters)})
+
+      } this.restartGame()
+    }
+
+    restartGame= () => {
+      if (this.state.wins >= 9) {
+      this.setState({wins: 0, losses: 0, character: this.shuffle(newCharacters), message: "New Game!"} )
+      } return 
+    }
 
     shuffle = (array) => {
       var i = 0, 
@@ -38,31 +48,32 @@ class Game extends Component {
       return array
     }
 
-    componentDidMount(){
-      this.shuffle(newCharacters)
+    componentDidMount() {
+      this.setState({character: this.shuffle(newCharacters)})
     }
 
-    componentDidUpdate() {
-      this.shuffle(newCharacters)
-    }
-  
-    click = (key) => {
-      if (this.state.character.indexOf(key) > -1){
-        return this.score('lose')      
-      }
-      else {
-        this.setState(prevState => ({character: [...prevState.character,key]}))
-        return this.score('win')
-      }
-      
+    click = (value) => {
+      var win = true;
+      console.log(this.state.clicked)
+      this.state.clicked.forEach(id => {
+        if (id !== value) {
+          win = false;
+          console.log(this.state.clicked.id)
+        }
+      })
+      this.setState({clicked: [...this.state.clicked, value]})
+      if (win) {
+      return this.score('win');
+    } 
+      return this.score('lose');
       }
 
     render() {
         return (
           <div className="gameCont">
             <ScoreTab wins = {this.state.wins} message = {this.state.message} losses = {this.state.losses}/>
-          {newCharacters.map(item => 
-          <Card image={item.image} name={item.name} funFact={item.funFact} character={this.click}/>
+          {this.state.character.map(item => 
+          <Card value={item.id} image={item.image} name={item.name} funFact={item.funFact} character={this.click}/>
           )} 
           </div>
         )
